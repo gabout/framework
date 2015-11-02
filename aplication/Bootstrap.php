@@ -1,0 +1,67 @@
+<?php
+/**
+ * Clase Bootstrap
+ * 
+ * Clase controlador padre
+ * @author  Cristian Bernal <crisbera@gmail.com>
+ */
+class Bootstrap
+{
+
+
+	/**
+	 * Método run
+	 * 
+	 * Método obtiene y ejecuta un controlador y metodo según la url
+	 * @param  $peticion objeto request
+	 * @return  void no regresa ningún valor
+	 */
+	public static function run(Request $peticion){
+		$controlador = $peticion->getControlador().'Controller';
+		$rutaControlador = ROOT. 'controllers'. DS . $controlador . '.php';
+		$metodo = $peticion->getMetodo();
+		$args = $peticion->getArgs();
+		
+				
+		if(is_readable($rutaControlador))
+		{
+			include_once $rutaControlador; 
+			$controlador = new $controlador;
+            
+			if(is_callable(array($controlador, $metodo))){
+				$metodo = $peticion->getMetodo();
+                
+			}else{
+				$metodo = "index";
+			}
+             
+			if ($metodo == 'login') {
+				# code...
+			}else{
+                
+				Authorization::logged();
+
+			}
+
+            
+
+			if(isset($args)){
+				call_user_func_array(array($controlador, $metodo),$peticion->getArgs());
+			}else{
+				call_user_func(array($controlador, $metodo));
+			}
+
+		}else{
+			throw new Exception('Controlador no encontrado');
+
+		}
+
+
+	}
+
+
+}
+
+
+
+?>
